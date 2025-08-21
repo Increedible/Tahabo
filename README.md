@@ -7,10 +7,10 @@ This is a demo application built to get familiar with ASP.NET Core MVC.
 
 ## Features
 
-* **Tasks**: create, edit, filter, mark done, and track completions
-* **Habits**: create, edit, check-in with streak tracking
-* **Bookmarks**: save websites, mark favorites, tag and filter
-* **Dashboard**: overview of open tasks, recent bookmarks, active habits, top tags, and task completion trends
+* Tasks: create, edit, filter, mark done, and track completions
+* Habits: create, edit, check-in with streak tracking
+* Bookmarks: save websites, mark favorites, tag and filter
+* Dashboard: overview of open tasks, recent bookmarks, active habits, top tags, and task completion trends
 * Responsive UI with Bootstrap styling
 * Toast-style feedback messages for user actions
 

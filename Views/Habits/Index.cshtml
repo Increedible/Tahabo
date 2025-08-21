@@ -1,0 +1,69 @@
+@model IEnumerable<TaskHabitBookmarkApp.Models.Habit>
+@{
+    ViewData["Title"] = "Habits";
+}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h3 class="m-0">Habits</h3>
+  <a class="btn btn-primary" asp-action="Create">Add Habit</a>
+</div>
+
+<table class="table table-hover align-middle">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Frequency</th>
+      <th>Streak</th>
+      <th>Best</th>
+      <th>Last</th>
+      <th class="text-end">Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+  @foreach (var h in Model)
+  {
+    var today = DateTime.UtcNow.Date;
+    var isChecked = false;
+    if (h.Frequency == Frequency.Daily)
+    {
+        isChecked = h.LastDoneDate?.Date == today;
+    }
+    else
+    {
+        // weekly: check if last done is within current ISO week
+        int diff = (7 + ((int)today.DayOfWeek - (int)DayOfWeek.Monday)) % 7;
+        var start = today.AddDays(-diff).Date;
+        var end = start.AddDays(6);
+        if (h.LastDoneDate.HasValue)
+        {
+            var last = h.LastDoneDate.Value.Date;
+            isChecked = last >= start && last <= end;
+        }
+    }
+
+    <tr>
+      <td>@h.Name</td>
+      <td>@h.Frequency</td>
+      <td><span class="badge text-bg-primary">🔥 @h.Streak</span></td>
+      <td>@h.BestStreak</td>
+      <td>@(h.LastDoneDate?.ToString("yyyy-MM-dd") ?? "-")</td>
+      <td class="text-end text-nowrap">
+        <div class="d-inline-flex gap-1">
+          @if (!isChecked)
+          {
+              <form asp-action="CheckIn" asp-route-id="@h.Id" method="post">
+                <button class="btn btn-sm btn-outline-success">Check-in</button>
+              </form>
+          }
+          else
+          {
+              <button class="btn btn-sm btn-success" disabled>Checked in</button>
+          }
+          <a class="btn btn-sm btn-outline-primary" asp-action="Edit" asp-route-id="@h.Id">Edit</a>
+          <a class="btn btn-sm btn-outline-secondary" asp-action="Details" asp-route-id="@h.Id">Details</a>
+          <a class="btn btn-sm btn-outline-danger" asp-action="Delete" asp-route-id="@h.Id">Delete</a>
+        </div>
+      </td>
+    </tr>
+  }
+  </tbody>
+</table>

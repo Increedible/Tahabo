@@ -1,0 +1,35 @@
+@model TaskHabitBookmarkApp.Models.TaskItem
+@{
+    ViewData["Title"] = "Task Details";
+}
+<h3>Task Details</h3>
+
+<div class="card mt-3">
+  <div class="card-body">
+    <h5 class="card-title">@Model.Title</h5>
+    <p class="card-text">@Model.Notes</p>
+    <dl class="row">
+      <dt class="col-sm-3">Due Date</dt>
+      <dd class="col-sm-9">@(Model.DueDate?.ToString("yyyy-MM-dd") ?? "-")</dd>
+
+      <dt class="col-sm-3">Priority</dt>
+      <dd class="col-sm-9">@Model.Priority</dd>
+
+      <dt class="col-sm-3">Completed?</dt>
+      <dd class="col-sm-9">@(Model.IsCompleted ? "Yes" : "No")</dd>
+
+      @if (Model.CompletedAt.HasValue)
+      {
+          <dt class="col-sm-3">Completed At</dt>
+          <dd class="col-sm-9">@Model.CompletedAt.Value.ToString("yyyy-MM-dd HH:mm")</dd>
+      }
+
+      <dt class="col-sm-3">Created At</dt>
+      <dd class="col-sm-9">@Model.CreatedAt.ToString("yyyy-MM-dd HH:mm")</dd>
+    </dl>
+  </div>
+  <div class="card-footer d-flex justify-content-end gap-2">
+    <a class="btn btn-outline-primary" asp-action="Edit" asp-route-id="@Model.Id">Edit</a>
+    <a class="btn btn-outline-secondary" asp-action="Index">Back</a>
+  </div>
+</div>

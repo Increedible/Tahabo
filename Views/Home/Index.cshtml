@@ -1,0 +1,130 @@
+﻿@{
+    ViewData["Title"] = "Dashboard";
+    var openCount = (int)ViewBag.OpenCount;
+    var activeHabits = ViewBag.ActiveHabits as IEnumerable<Habit> ?? Enumerable.Empty<Habit>();
+    var topTags = ViewBag.TopTags as IEnumerable<dynamic> ?? Enumerable.Empty<dynamic>();
+    var recent = ViewBag.RecentBookmarks as IEnumerable<Bookmark> ?? Enumerable.Empty<Bookmark>();
+    var series = ViewBag.CompletionSeries as IEnumerable<dynamic> ?? Enumerable.Empty<dynamic>();
+}
+
+<div class="row g-3">
+  <div class="col-md-4">
+    <div class="card h-100">
+      <div class="card-body">
+        <h5 class="card-title">Open tasks</h5>
+        <p class="display-5 m-0">@openCount</p>
+        <a asp-controller="Tasks" asp-action="Index" class="btn btn-sm btn-outline-primary mt-2">View tasks</a>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-8">
+    <div class="card h-100">
+      <div class="card-body">
+        <h5 class="card-title">Completions (last 14 days)</h5>
+        <canvas id="taskChart"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-3 mt-1">
+  <div class="col-md-6">
+    <div class="card h-100">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center">
+          <h5 class="card-title">Top tags</h5>
+          <a class="btn btn-sm btn-outline-secondary" asp-controller="Bookmarks" asp-action="Index">View bookmarks</a>
+        </div>
+        @if (!topTags.Any())
+        {
+            <p class="text-muted m-0">No tags yet.</p>
+        }
+        else
+        {
+            <div class="d-flex flex-wrap gap-2">
+                @foreach (var t in topTags)
+                {
+                    <a class="badge text-bg-secondary" asp-controller="Bookmarks" asp-action="Index" asp-route-tag="@t.Tag">@t.Tag (@t.Count)</a>
+                }
+            </div>
+        }
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-6">
+    <div class="card h-100">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center">
+          <h5 class="card-title">Active habits</h5>
+          <a class="btn btn-sm btn-outline-secondary" asp-controller="Habits" asp-action="Index">View habits</a>
+        </div>
+        @if (!activeHabits.Any())
+        {
+            <p class="text-muted m-0">No habits yet.</p>
+        }
+        else
+        {
+            <ul class="list-group list-group-flush">
+            @foreach (var h in activeHabits)
+            {
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span>@h.Name (<small>@h.Frequency</small>)</span>
+                    <span class="badge text-bg-primary">🔥 @h.Streak</span>
+                </li>
+            }
+            </ul>
+        }
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card mt-3">
+  <div class="card-body">
+    <h5 class="card-title">Recent bookmarks</h5>
+    @if (!recent.Any())
+    {
+        <p class="text-muted">Nothing saved yet.</p>
+    }
+    else
+    {
+        <div class="row row-cols-1 row-cols-md-3 g-3">
+        @foreach (var b in recent)
+        {
+            <div class="col">
+              <div class="card h-100">
+                <div class="card-body">
+                  <h6 class="card-title mb-1">@b.Title</h6>
+                  <a asp-controller="Bookmarks" asp-action="Visit" asp-route-id="@b.Id" class="small text-truncate d-block">@b.Url</a>
+                  <span class="badge text-bg-light mt-2">Clicks: @b.Clicks</span>
+                </div>
+              </div>
+            </div>
+        }
+        </div>
+    }
+  </div>
+</div>
+
+@section Scripts {
+<script>
+  (function() {
+    const data = @System.Text.Json.JsonSerializer.Serialize(series);
+    const ctx = document.getElementById('taskChart');
+    const labels = data.map(x => x.date);
+    const counts = data.map(x => x.count);
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [{ label: 'Completed', data: counts, tension: 0.2 }]
+      },
+      options: {
+        scales: { y: { beginAtZero: true, precision: 0 } },
+        plugins: { legend: { display: false } }
+      }
+    });
+  })();
+</script>
+}

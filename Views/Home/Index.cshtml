@@ -4,7 +4,9 @@
     var activeHabits = ViewBag.ActiveHabits as IEnumerable<Habit> ?? Enumerable.Empty<Habit>();
     var topTags = ViewBag.TopTags as IEnumerable<dynamic> ?? Enumerable.Empty<dynamic>();
     var recent = ViewBag.RecentBookmarks as IEnumerable<Bookmark> ?? Enumerable.Empty<Bookmark>();
-    var series = ViewBag.CompletionSeries as IEnumerable<dynamic> ?? Enumerable.Empty<dynamic>();
+    // Pre-format dates here to "dd MMM"
+    var series = (ViewBag.CompletionSeries as IEnumerable<dynamic> ?? Enumerable.Empty<dynamic>())
+                 .Select(x => new { date = DateTime.Parse(x.date.ToString()).ToString("dd MMM"), count = (int)x.count });
 }
 
 <div class="row g-3">
@@ -110,7 +112,8 @@
 @section Scripts {
 <script>
   (function() {
-    const data = @System.Text.Json.JsonSerializer.Serialize(series);
+    // IMPORTANT: output JSON unencoded so JS can parse it.
+    const data = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(series));
     const ctx = document.getElementById('taskChart');
     const labels = data.map(x => x.date);
     const counts = data.map(x => x.count);
@@ -118,10 +121,15 @@
       type: 'line',
       data: {
         labels,
-        datasets: [{ label: 'Completed', data: counts, tension: 0.2 }]
+        datasets: [{ label: 'Completed', data: counts, tension: 0.4 }]
       },
       options: {
-        scales: { y: { beginAtZero: true, precision: 0 } },
+        scales: { 
+          y: { 
+            beginAtZero: true, 
+            ticks: { stepSize: 1, precision: 0 } // integers only 
+          } 
+        },
         plugins: { legend: { display: false } }
       }
     });

@@ -29,17 +29,17 @@ namespace TaskHabitBookmarkApp.Controllers
             var recentBookmarks = await _db.Bookmarks
                 .OrderByDescending(b => b.CreatedAt).Take(6).ToListAsync();
 
-            // Completions series: prefer CompletedAt; if it's null, fall back to CreatedAt so the chart isn't empty.
+            // Completions series: count tasks completed in the last 14 days by CompletedAt date
             var from = today.AddDays(-13);
             var completed = await _db.Tasks
-                .Where(t => t.IsCompleted && ((t.CompletedAt ?? t.CreatedAt) >= from))
-                .Select(t => new { When = (t.CompletedAt ?? t.CreatedAt) })
+                .Where(t => t.IsCompleted && t.CompletedAt != null && t.CompletedAt >= from)
+                .Select(t => t.CompletedAt!.Value)
                 .ToListAsync();
 
             var series = Enumerable.Range(0, 14).Select(i =>
             {
                 var d = from.AddDays(i).Date;
-                var count = completed.Count(t => t.When.Date == d);
+                var count = completed.Count(dt => dt.Date == d);
                 return new { date = d.ToString("yyyy-MM-dd"), count };
             }).ToList();
 

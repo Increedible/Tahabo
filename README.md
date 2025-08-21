@@ -3,6 +3,8 @@
 The app provides a clean interface and basic functionality for managing Tasks, Habits, and Bookmarks, all with full CRUD operations.
 This is a demo application built to get familiar with ASP.NET Core MVC.
 
+![Preview image](Images/Preview.png)
+
 ## Features
 
 * **Tasks**: create, edit, filter, mark done, and track completions

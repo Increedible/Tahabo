@@ -57,4 +57,4 @@ This is a demo application built to get familiar with ASP.NET Core MVC.
 
 ## License
 
-Apache 2.0 License..
+Apache 2.0 License.
